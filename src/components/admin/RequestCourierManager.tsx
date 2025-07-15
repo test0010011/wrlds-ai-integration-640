@@ -3,17 +3,28 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Mail, 
   Plus, 
   Calendar, 
   User, 
-  FileText, 
-  ExternalLink,
-  Trash2 
+  FileText,
 } from "lucide-react";
 import { CourierDialog } from "./CourierDialog";
+import { CourierActionsMenu } from "./CourierActionsMenu";
+import { CourierBulkActions } from "./CourierBulkActions";
 import { toast } from "sonner";
+
+interface Courier {
+  id: string;
+  objet: string;
+  type: string;
+  destinataire: string;
+  date: string;
+  statut: string;
+  pieceJointe?: string;
+}
 
 interface RequestCourierManagerProps {
   requestId: string;
@@ -21,8 +32,7 @@ interface RequestCourierManagerProps {
 }
 
 export const RequestCourierManager = ({ requestId, citizenName }: RequestCourierManagerProps) => {
-  // Mock data pour les courriers liés à cette requête
-  const [linkedCouriers, setLinkedCouriers] = useState([
+  const [linkedCouriers, setLinkedCouriers] = useState<Courier[]>([
     {
       id: "COU-001",
       objet: "Réponse permis de construire",
@@ -33,15 +43,38 @@ export const RequestCourierManager = ({ requestId, citizenName }: RequestCourier
       pieceJointe: "reponse_permis.pdf"
     }
   ]);
+  
+  const [selectedCouriers, setSelectedCouriers] = useState<Set<string>>(new Set());
 
   const handleUnlinkCourier = (courierId: string) => {
     setLinkedCouriers(prev => prev.filter(c => c.id !== courierId));
+    setSelectedCouriers(prev => {
+      const newSelected = new Set(prev);
+      newSelected.delete(courierId);
+      return newSelected;
+    });
     toast.success(`Courrier ${courierId} délié de la requête`);
   };
 
-  const handleViewCourier = (courierId: string) => {
-    toast.info(`Ouverture du courrier ${courierId}`);
+  const handleSelectCourier = (courierId: string, selected: boolean) => {
+    const newSelected = new Set(selectedCouriers);
+    if (selected) {
+      newSelected.add(courierId);
+    } else {
+      newSelected.delete(courierId);
+    }
+    setSelectedCouriers(newSelected);
   };
+
+  const handleSelectAll = () => {
+    setSelectedCouriers(new Set(linkedCouriers.map(c => c.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedCouriers(new Set());
+  };
+
+  const allSelected = linkedCouriers.length > 0 && selectedCouriers.size === linkedCouriers.length;
 
   return (
     <div>
@@ -57,6 +90,16 @@ export const RequestCourierManager = ({ requestId, citizenName }: RequestCourier
           </Button>
         </CourierDialog>
       </div>
+
+      {linkedCouriers.length > 0 && (
+        <CourierBulkActions
+          selectedCount={selectedCouriers.size}
+          totalCount={linkedCouriers.length}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          allSelected={allSelected}
+        />
+      )}
 
       {linkedCouriers.length === 0 ? (
         <Card className="border-dashed">
@@ -78,55 +121,46 @@ export const RequestCourierManager = ({ requestId, citizenName }: RequestCourier
             <Card key={courier.id} className="hover:shadow-sm transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <CardTitle className="text-sm font-medium">{courier.id}</CardTitle>
-                      <Badge variant="outline" className="text-xs">
-                        {courier.type}
-                      </Badge>
-                      <Badge 
-                        variant={courier.statut === "Envoyé" ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {courier.statut}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-900 mb-2">{courier.objet}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {courier.destinataire}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(courier.date).toLocaleDateString('fr-FR')}
-                      </span>
-                      {courier.pieceJointe && (
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={selectedCouriers.has(courier.id)}
+                      onCheckedChange={(checked) => 
+                        handleSelectCourier(courier.id, checked as boolean)
+                      }
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CardTitle className="text-sm font-medium">{courier.id}</CardTitle>
+                        <Badge variant="outline" className="text-xs">
+                          {courier.type}
+                        </Badge>
+                        <Badge 
+                          variant={courier.statut === "Envoyé" ? "default" : "secondary"}
+                          className="text-xs"
+                        >
+                          {courier.statut}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-900 mb-2">{courier.objet}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
-                          <FileText className="h-3 w-3" />
-                          {courier.pieceJointe}
+                          <User className="h-3 w-3" />
+                          {courier.destinataire}
                         </span>
-                      )}
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(courier.date).toLocaleDateString('fr-FR')}
+                        </span>
+                        {courier.pieceJointe && (
+                          <span className="flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            {courier.pieceJointe}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewCourier(courier.id)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleUnlinkCourier(courier.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
+                  <CourierActionsMenu courierId={courier.id} />
                 </div>
               </CardHeader>
             </Card>

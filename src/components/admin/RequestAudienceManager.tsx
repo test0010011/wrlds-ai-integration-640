@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -18,8 +19,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Link, Trash2 } from "lucide-react";
+import { Calendar, User } from "lucide-react";
 import { AudienceDialog } from "./AudienceDialog";
+import { AudienceActionsMenu } from "./AudienceActionsMenu";
+import { AudienceBulkActions } from "./AudienceBulkActions";
 import { toast } from "sonner";
 
 interface Audience {
@@ -43,6 +46,8 @@ export const RequestAudienceManager = ({
   citizenName 
 }: RequestAudienceManagerProps) => {
   const [linkedAudiences, setLinkedAudiences] = useState<Audience[]>([]);
+  const [selectedAudiences, setSelectedAudiences] = useState<Set<string>>(new Set());
+  
   const [existingAudiences] = useState<Audience[]>([
     {
       id: "AUD-001",
@@ -79,8 +84,33 @@ export const RequestAudienceManager = ({
 
   const handleUnlinkAudience = (audienceId: string) => {
     setLinkedAudiences(prev => prev.filter(a => a.id !== audienceId));
+    setSelectedAudiences(prev => {
+      const newSelected = new Set(prev);
+      newSelected.delete(audienceId);
+      return newSelected;
+    });
     toast.success("Audience dissociée de la requête");
   };
+
+  const handleSelectAudience = (audienceId: string, selected: boolean) => {
+    const newSelected = new Set(selectedAudiences);
+    if (selected) {
+      newSelected.add(audienceId);
+    } else {
+      newSelected.delete(audienceId);
+    }
+    setSelectedAudiences(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    setSelectedAudiences(new Set(linkedAudiences.map(a => a.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedAudiences(new Set());
+  };
+
+  const allSelected = linkedAudiences.length > 0 && selectedAudiences.size === linkedAudiences.length;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -123,6 +153,17 @@ export const RequestAudienceManager = ({
           </div>
         </CardTitle>
       </CardHeader>
+
+      {linkedAudiences.length > 0 && (
+        <AudienceBulkActions
+          selectedCount={selectedAudiences.size}
+          totalCount={linkedAudiences.length}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          allSelected={allSelected}
+        />
+      )}
+
       <CardContent>
         {linkedAudiences.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
@@ -134,6 +175,12 @@ export const RequestAudienceManager = ({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={allSelected ? handleDeselectAll : handleSelectAll}
+                  />
+                </TableHead>
                 <TableHead>Sujet</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Pièce Jointe</TableHead>
@@ -146,6 +193,14 @@ export const RequestAudienceManager = ({
             <TableBody>
               {linkedAudiences.map((audience) => (
                 <TableRow key={audience.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedAudiences.has(audience.id)}
+                      onCheckedChange={(checked) => 
+                        handleSelectAudience(audience.id, checked as boolean)
+                      }
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{audience.sujet}</TableCell>
                   <TableCell>
                     {new Date(audience.date).toLocaleDateString('fr-FR')} à{' '}
@@ -172,14 +227,7 @@ export const RequestAudienceManager = ({
                   </TableCell>
                   <TableCell>{getStatusBadge(audience.status)}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleUnlinkAudience(audience.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <AudienceActionsMenu audienceId={audience.id} />
                   </TableCell>
                 </TableRow>
               ))}
