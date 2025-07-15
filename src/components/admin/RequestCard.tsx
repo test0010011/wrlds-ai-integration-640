@@ -1,21 +1,17 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  Calendar,
   Clock,
   User,
   Building,
   FileText,
-  Eye,
-  UserPlus,
-  Bell,
   ExternalLink,
 } from "lucide-react";
 import { RequestBadges } from "./RequestBadges";
+import { AssignUserDialog } from "./AssignUserDialog";
+import { RequestNotificationsDialog } from "./RequestNotificationsDialog";
 import { toast } from "sonner";
 
 interface Request {
@@ -60,12 +56,8 @@ export const RequestCard = ({ request }: RequestCardProps) => {
     window.open(detailsUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
   };
 
-  const handleAssign = () => {
-    toast.info(`Assignation de la requête ${request.id}`);
-  };
-
-  const handleNotify = () => {
-    toast.success(`Notification envoyée pour la requête ${request.id}`);
+  const handleAssignUser = (userId: string, userName: string) => {
+    toast.success(`Requête ${request.id} assignée à ${userName}`);
   };
 
   return (
@@ -108,24 +100,15 @@ export const RequestCard = ({ request }: RequestCardProps) => {
               <ExternalLink className="h-4 w-4" />
               Détail
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleAssign}
-              className="flex items-center gap-1"
-            >
-              <UserPlus className="h-4 w-4" />
-              Assigner
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleNotify}
-              className="flex items-center gap-1"
-            >
-              <Bell className="h-4 w-4" />
-              Notifier
-            </Button>
+            <AssignUserDialog
+              requestId={request.id}
+              currentAssignee={request.assignedAgent}
+              onAssign={handleAssignUser}
+            />
+            <RequestNotificationsDialog
+              requestId={request.id}
+              citizenName={request.citizen.name}
+            />
           </div>
         </div>
       </CardHeader>
