@@ -1,20 +1,15 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  ChevronDown,
-  ChevronUp,
   Calendar,
   Clock,
   User,
   Building,
   FileText,
-  AlertTriangle,
-  CheckCircle,
-  Users,
   Eye,
   UserPlus,
   Bell,
@@ -63,8 +58,6 @@ interface RequestCardProps {
 }
 
 export const RequestCard = ({ request }: RequestCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const handleViewDetails = () => {
     toast.info(`Ouverture des détails de la requête ${request.id}`);
   };
@@ -135,80 +128,65 @@ export const RequestCard = ({ request }: RequestCardProps) => {
               <Bell className="h-4 w-4" />
               Notifier
             </Button>
-            <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </Collapsible>
           </div>
         </div>
       </CardHeader>
 
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-        <CollapsibleContent>
-          <CardContent className="pt-0 space-y-6">
-            <Separator />
-            
-            {/* Description */}
-            <div>
-              <h4 className="font-medium mb-2 flex items-center">
-                <FileText className="h-4 w-4 mr-2" />
-                Description
-              </h4>
-              <p className="text-sm text-muted-foreground">{request.description}</p>
+      <CardContent className="pt-0 space-y-6">
+        <Separator />
+        
+        {/* Description */}
+        <div>
+          <h4 className="font-medium mb-2 flex items-center">
+            <FileText className="h-4 w-4 mr-2" />
+            Description
+          </h4>
+          <p className="text-sm text-muted-foreground">{request.description}</p>
+        </div>
+
+        {/* Citizen Information */}
+        <RequestCitizenInfo citizen={request.citizen} />
+
+        {/* Workflow */}
+        <RequestWorkflow workflow={request.workflow} />
+
+        {/* Audience Management */}
+        <RequestAudienceManager 
+          requestId={request.id}
+          citizenName={request.citizen.name}
+        />
+
+        {/* Courier Management */}
+        <RequestCourierManager 
+          requestId={request.id}
+          citizenName={request.citizen.name}
+        />
+
+        {/* Additional Information */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-medium">Agent assigné:</span>
+            <p className="text-muted-foreground">{request.assignedAgent}</p>
+          </div>
+          <div>
+            <span className="font-medium">Classification IA:</span>
+            <p className="text-muted-foreground">{request.aiClassification}</p>
+          </div>
+        </div>
+
+        {request.attachments && request.attachments.length > 0 && (
+          <div>
+            <h4 className="font-medium mb-2">Pièces jointes</h4>
+            <div className="flex flex-wrap gap-2">
+              {request.attachments.map((attachment, index) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {attachment}
+                </Badge>
+              ))}
             </div>
-
-            {/* Citizen Information */}
-            <RequestCitizenInfo citizen={request.citizen} />
-
-            {/* Workflow */}
-            <RequestWorkflow workflow={request.workflow} />
-
-            {/* Audience Management */}
-            <RequestAudienceManager 
-              requestId={request.id}
-              citizenName={request.citizen.name}
-            />
-
-            {/* Courier Management */}
-            <RequestCourierManager 
-              requestId={request.id}
-              citizenName={request.citizen.name}
-            />
-
-            {/* Additional Information */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium">Agent assigné:</span>
-                <p className="text-muted-foreground">{request.assignedAgent}</p>
-              </div>
-              <div>
-                <span className="font-medium">Classification IA:</span>
-                <p className="text-muted-foreground">{request.aiClassification}</p>
-              </div>
-            </div>
-
-            {request.attachments && request.attachments.length > 0 && (
-              <div>
-                <h4 className="font-medium mb-2">Pièces jointes</h4>
-                <div className="flex flex-wrap gap-2">
-                  {request.attachments.map((attachment, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {attachment}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 };
