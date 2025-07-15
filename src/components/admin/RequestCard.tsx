@@ -13,12 +13,9 @@ import {
   Eye,
   UserPlus,
   Bell,
+  ExternalLink,
 } from "lucide-react";
 import { RequestBadges } from "./RequestBadges";
-import { RequestCitizenInfo } from "./RequestCitizenInfo";
-import { RequestWorkflow } from "./RequestWorkflow";
-import { RequestAudienceManager } from "./RequestAudienceManager";
-import { RequestCourierManager } from "./RequestCourierManager";
 import { toast } from "sonner";
 
 interface Request {
@@ -59,7 +56,8 @@ interface RequestCardProps {
 
 export const RequestCard = ({ request }: RequestCardProps) => {
   const handleViewDetails = () => {
-    toast.info(`Ouverture des détails de la requête ${request.id}`);
+    const detailsUrl = `/admin/requests/${request.id}`;
+    window.open(detailsUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
   };
 
   const handleAssign = () => {
@@ -107,7 +105,7 @@ export const RequestCard = ({ request }: RequestCardProps) => {
               onClick={handleViewDetails}
               className="flex items-center gap-1"
             >
-              <Eye className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" />
               Détail
             </Button>
             <Button 
@@ -132,58 +130,35 @@ export const RequestCard = ({ request }: RequestCardProps) => {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0 space-y-6">
-        <Separator />
+      <CardContent className="pt-0">
+        <Separator className="mb-4" />
         
-        {/* Description */}
-        <div>
+        {/* Description abrégée */}
+        <div className="mb-4">
           <h4 className="font-medium mb-2 flex items-center">
             <FileText className="h-4 w-4 mr-2" />
             Description
           </h4>
-          <p className="text-sm text-muted-foreground">{request.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{request.description}</p>
         </div>
 
-        {/* Citizen Information */}
-        <RequestCitizenInfo citizen={request.citizen} />
-
-        {/* Workflow */}
-        <RequestWorkflow workflow={request.workflow} />
-
-        {/* Audience Management */}
-        <RequestAudienceManager 
-          requestId={request.id}
-          citizenName={request.citizen.name}
-        />
-
-        {/* Courier Management */}
-        <RequestCourierManager 
-          requestId={request.id}
-          citizenName={request.citizen.name}
-        />
-
-        {/* Additional Information */}
+        {/* Informations de base */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="font-medium">Agent assigné:</span>
             <p className="text-muted-foreground">{request.assignedAgent}</p>
           </div>
           <div>
-            <span className="font-medium">Classification IA:</span>
-            <p className="text-muted-foreground">{request.aiClassification}</p>
+            <span className="font-medium">Workflow:</span>
+            <p className="text-muted-foreground">{request.workflow.current}</p>
           </div>
         </div>
 
         {request.attachments && request.attachments.length > 0 && (
-          <div>
-            <h4 className="font-medium mb-2">Pièces jointes</h4>
-            <div className="flex flex-wrap gap-2">
-              {request.attachments.map((attachment, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {attachment}
-                </Badge>
-              ))}
-            </div>
+          <div className="mt-4">
+            <span className="text-xs text-muted-foreground">
+              {request.attachments.length} pièce(s) jointe(s)
+            </span>
           </div>
         )}
       </CardContent>

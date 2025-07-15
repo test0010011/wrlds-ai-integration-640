@@ -9,6 +9,7 @@ import CitizenPortal from "./pages/CitizenPortal";
 import AdminDashboard from "./pages/AdminDashboard";
 import LegalLibrary from "./pages/LegalLibrary";
 import CitizenRegistration from "./pages/CitizenRegistration";
+import RequestDetails from "./pages/RequestDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/citizen-portal" element={<CitizenPortal />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/citizens" element={<CitizenRegistration />} />
+          <Route path="/admin/requests/:requestId" element={<RequestDetails />} />
           <Route path="/legal-library" element={<LegalLibrary />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
