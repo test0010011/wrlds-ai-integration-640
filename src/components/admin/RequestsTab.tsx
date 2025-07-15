@@ -1,8 +1,9 @@
-
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { MessageSquare } from "lucide-react";
 import { RequestFilters } from "./RequestFilters";
 import { RequestCard } from "./RequestCard";
+import { RequestsBulkActions } from "./RequestsBulkActions";
 
 interface Request {
   id: string;
@@ -51,9 +52,31 @@ export const RequestsTab = ({
   onSearchChange, 
   onFilterChange 
 }: RequestsTabProps) => {
+  const [selectedRequests, setSelectedRequests] = useState<Set<string>>(new Set());
+
   const handleNewRequest = (newRequest: any) => {
     console.log("New request created:", newRequest);
   };
+
+  const handleSelectRequest = (requestId: string, selected: boolean) => {
+    const newSelected = new Set(selectedRequests);
+    if (selected) {
+      newSelected.add(requestId);
+    } else {
+      newSelected.delete(requestId);
+    }
+    setSelectedRequests(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    setSelectedRequests(new Set(requests.map(r => r.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedRequests(new Set());
+  };
+
+  const allSelected = requests.length > 0 && selectedRequests.size === requests.length;
 
   return (
     <Card>
@@ -77,10 +100,24 @@ export const RequestsTab = ({
           />
         </div>
       </CardHeader>
+      
+      <RequestsBulkActions
+        selectedCount={selectedRequests.size}
+        totalCount={requests.length}
+        onSelectAll={handleSelectAll}
+        onDeselectAll={handleDeselectAll}
+        allSelected={allSelected}
+      />
+      
       <CardContent>
         <div className="space-y-4">
           {requests.map((request) => (
-            <RequestCard key={request.id} request={request} />
+            <RequestCard 
+              key={request.id} 
+              request={request}
+              isSelected={selectedRequests.has(request.id)}
+              onSelect={(selected) => handleSelectRequest(request.id, selected)}
+            />
           ))}
         </div>
       </CardContent>

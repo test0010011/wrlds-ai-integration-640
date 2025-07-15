@@ -1,7 +1,9 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Clock,
   User,
@@ -12,6 +14,7 @@ import {
 import { RequestBadges } from "./RequestBadges";
 import { AssignUserDialog } from "./AssignUserDialog";
 import { RequestNotificationsDialog } from "./RequestNotificationsDialog";
+import { RequestActionsMenu } from "./RequestActionsMenu";
 import { toast } from "sonner";
 
 interface Request {
@@ -48,9 +51,11 @@ interface Request {
 
 interface RequestCardProps {
   request: Request;
+  isSelected: boolean;
+  onSelect: (selected: boolean) => void;
 }
 
-export const RequestCard = ({ request }: RequestCardProps) => {
+export const RequestCard = ({ request, isSelected, onSelect }: RequestCardProps) => {
   const handleViewDetails = () => {
     const detailsUrl = `/admin/requests/${request.id}`;
     window.open(detailsUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
@@ -64,30 +69,37 @@ export const RequestCard = ({ request }: RequestCardProps) => {
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="font-semibold text-lg">{request.id}</h3>
-              <RequestBadges 
-                status={request.status}
-                priority={request.priority}
-                slaStatus={request.slaStatus}
-                aiClassification={request.aiClassification}
-              />
-            </div>
-            <p className="text-sm text-muted-foreground mb-1">{request.subject}</p>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                {request.citizen.name}
-              </span>
-              <span className="flex items-center gap-1">
-                <Building className="h-3 w-3" />
-                {request.type}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {new Date(request.createdAt).toLocaleDateString('fr-FR')}
-              </span>
+          <div className="flex items-start gap-3 flex-1">
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={onSelect}
+              className="mt-1"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-semibold text-lg">{request.id}</h3>
+                <RequestBadges 
+                  status={request.status}
+                  priority={request.priority}
+                  slaStatus={request.slaStatus}
+                  aiClassification={request.aiClassification}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mb-1">{request.subject}</p>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  {request.citizen.name}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Building className="h-3 w-3" />
+                  {request.type}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {new Date(request.createdAt).toLocaleDateString('fr-FR')}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -109,6 +121,7 @@ export const RequestCard = ({ request }: RequestCardProps) => {
               requestId={request.id}
               citizenName={request.citizen.name}
             />
+            <RequestActionsMenu requestId={request.id} />
           </div>
         </div>
       </CardHeader>
