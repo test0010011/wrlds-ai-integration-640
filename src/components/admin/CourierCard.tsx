@@ -136,7 +136,7 @@ export const CourierCard = ({ courrier, isSelected, onSelect }: CourierCardProps
             </div>
           </div>
           
-          <CourierActionsMenu courierId={courrier.id} />
+          <CourierActionsMenu courier={courrier} />
         </div>
       </CardHeader>
       
