@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -7,6 +6,7 @@ import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { KPICards } from "@/components/admin/KPICards";
 import { RequestsTab } from "@/components/admin/RequestsTab";
+import { CourriersTab } from "@/components/admin/CourriersTab";
 import { WorkflowTab } from "@/components/admin/WorkflowTab";
 import { AdministrationsTab } from "@/components/admin/AdministrationsTab";
 import { AppointmentsTab } from "@/components/admin/AppointmentsTab";
@@ -17,6 +17,8 @@ const AdminDashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [courrierSearchTerm, setCourrierSearchTerm] = useState("");
+  const [courrierFilterStatus, setCourrierFilterStatus] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   // Enhanced mock data with ITIL workflow
@@ -92,6 +94,47 @@ const AdminDashboard = () => {
     }
   ]);
 
+  const [courriers] = useState([
+    {
+      id: "COU-2024-001",
+      objet: "Réponse permis de construire",
+      type: "Sortant",
+      destinataire: "Mohamed Benaissa",
+      expediteur: "Service Urbanisme",
+      date: "2024-01-15T10:30:00",
+      statut: "Envoyé",
+      pieceJointe: "reponse_permis.pdf",
+      description: "Réponse officielle concernant la demande de permis de construire...",
+      priority: "Moyenne",
+      category: "Urbanisme"
+    },
+    {
+      id: "COU-2024-002",
+      objet: "Demande complément dossier",
+      type: "Sortant",
+      destinataire: "Fatima Zerhouni",
+      expediteur: "Service Technique",
+      date: "2024-01-14T08:15:00",
+      statut: "En attente",
+      pieceJointe: "demande_complement.pdf",
+      description: "Demande de compléments pour finaliser le dossier...",
+      priority: "Haute",
+      category: "Transport"
+    },
+    {
+      id: "COU-2024-003",
+      objet: "Convocation audience",
+      type: "Sortant",
+      destinataire: "Ahmed Benali",
+      expediteur: "Secrétariat Général",
+      date: "2024-01-16T14:20:00",
+      statut: "Brouillon",
+      description: "Convocation pour audience concernant le recours administratif...",
+      priority: "Haute",
+      category: "Administratif"
+    }
+  ]);
+
   const [administrations] = useState([
     {
       id: "ADM-001",
@@ -151,8 +194,9 @@ const AdminDashboard = () => {
         <KPICards stats={stats} />
 
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-white">
+          <TabsList className="grid w-full grid-cols-7 bg-white">
             <TabsTrigger value="requests">Gestion Requêtes</TabsTrigger>
+            <TabsTrigger value="courriers">Gestion Courriers</TabsTrigger>
             <TabsTrigger value="workflow">Workflow ITIL</TabsTrigger>
             <TabsTrigger value="administrations">Administrations</TabsTrigger>
             <TabsTrigger value="appointments">Audiences</TabsTrigger>
@@ -167,6 +211,16 @@ const AdminDashboard = () => {
               filterStatus={filterStatus}
               onSearchChange={setSearchTerm}
               onFilterChange={setFilterStatus}
+            />
+          </TabsContent>
+
+          <TabsContent value="courriers">
+            <CourriersTab 
+              courriers={courriers}
+              searchTerm={courrierSearchTerm}
+              filterStatus={courrierFilterStatus}
+              onSearchChange={setCourrierSearchTerm}
+              onFilterChange={setCourrierFilterStatus}
             />
           </TabsContent>
 
