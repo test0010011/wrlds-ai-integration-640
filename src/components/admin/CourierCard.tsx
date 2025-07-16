@@ -10,7 +10,8 @@ import {
   AlertTriangle, 
   Clock,
   Building,
-  Mail
+  Mail,
+  Link2
 } from "lucide-react";
 import { CourierActionsMenu } from "./CourierActionsMenu";
 
@@ -26,6 +27,9 @@ interface Courier {
   description: string;
   priority: string;
   category: string;
+  requeteId?: string;
+  requeteCitizen?: string;
+  requeteSubject?: string;
 }
 
 interface CourierCardProps {
@@ -73,9 +77,36 @@ export const CourierCard = ({ courrier, isSelected, onSelect }: CourierCardProps
                   {courrier.priority}
                 </Badge>
                 <Badge variant="outline">{courrier.type}</Badge>
+                
+                {/* Badge pour la liaison avec une requête */}
+                {courrier.requeteId && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-700">
+                    <Link2 className="h-3 w-3 mr-1" />
+                    {courrier.requeteId}
+                  </Badge>
+                )}
               </div>
               
               <h4 className="font-medium text-gray-900 mb-2">{courrier.objet}</h4>
+              
+              {/* Affichage des informations de la requête liée */}
+              {courrier.requeteId && (
+                <div className="mb-3 p-2 bg-green-50 rounded border border-green-200">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Link2 className="h-4 w-4 text-green-600" />
+                    <span className="font-medium text-green-700">
+                      Lié à la requête: {courrier.requeteId}
+                    </span>
+                  </div>
+                  {(courrier.requeteCitizen || courrier.requeteSubject) && (
+                    <div className="mt-1 text-xs text-green-600">
+                      {courrier.requeteCitizen && <span>Citoyen: {courrier.requeteCitizen}</span>}
+                      {courrier.requeteCitizen && courrier.requeteSubject && <span> • </span>}
+                      {courrier.requeteSubject && <span>Sujet: {courrier.requeteSubject}</span>}
+                    </div>
+                  )}
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">

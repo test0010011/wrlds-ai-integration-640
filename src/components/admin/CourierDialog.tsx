@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -30,19 +29,21 @@ import {
   FileText,
   Building,
   Upload,
-  Send
+  Send,
+  Link2
 } from "lucide-react";
 import { toast } from "sonner";
 
 interface CourierDialogProps {
-  requestId: string;
-  citizenName: string;
+  requestId?: string;
+  citizenName?: string;
   children: React.ReactNode;
 }
 
-export const CourierDialog = ({ requestId, citizenName, children }: CourierDialogProps) => {
+export const CourierDialog = ({ requestId = "", citizenName = "", children }: CourierDialogProps) => {
   const [open, setOpen] = useState(false);
   const [selectedCourier, setSelectedCourier] = useState("");
+  const [selectedRequest, setSelectedRequest] = useState(requestId);
   const [newCourierData, setNewCourierData] = useState({
     // Section Courrier
     voieTransmission: "",
@@ -63,7 +64,10 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
     // Section Contenu
     objet: "",
     description: "",
-    pieceJointe: ""
+    pieceJointe: "",
+    
+    // Section Liaison
+    requeteId: requestId
   });
 
   // Mock data pour les courriers existants
@@ -74,7 +78,8 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
       type: "Sortant",
       destinataire: "Mohamed Benaissa",
       date: "2024-01-15",
-      statut: "Envoyé"
+      statut: "Envoyé",
+      requeteId: "REQ-2024-001250"
     },
     {
       id: "COU-002", 
@@ -82,7 +87,33 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
       type: "Sortant",
       destinataire: "Fatima Zerhouni",
       date: "2024-01-14",
-      statut: "En attente"
+      statut: "En attente",
+      requeteId: ""
+    }
+  ];
+
+  // Mock data pour les requêtes existantes
+  const existingRequests = [
+    {
+      id: "REQ-2024-001250",
+      citizen: "Mohamed Benaissa",
+      type: "Urbanisme",
+      subject: "Demande de permis de construire",
+      status: "En cours"
+    },
+    {
+      id: "REQ-2024-001249",
+      citizen: "Fatima Zerhouni",
+      type: "Transport",
+      subject: "Problème éclairage public",
+      status: "Résolu"
+    },
+    {
+      id: "REQ-2024-001248",
+      citizen: "Ahmed Benali",
+      type: "Social",
+      subject: "Demande aide sociale",
+      status: "En attente"
     }
   ];
 
@@ -92,7 +123,12 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
       return;
     }
     
-    toast.success(`Courrier ${selectedCourier} lié à la requête ${requestId}`);
+    if (!selectedRequest) {
+      toast.error("Veuillez sélectionner une requête à lier");
+      return;
+    }
+    
+    toast.success(`Courrier ${selectedCourier} lié à la requête ${selectedRequest}`);
     setOpen(false);
   };
 
@@ -103,7 +139,11 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
     }
 
     const courrierId = `COU-${Date.now()}`;
-    toast.success(`Nouveau courrier ${courrierId} créé et lié à la requête ${requestId}`);
+    if (newCourierData.requeteId) {
+      toast.success(`Nouveau courrier ${courrierId} créé et lié à la requête ${newCourierData.requeteId}`);
+    } else {
+      toast.success(`Nouveau courrier ${courrierId} créé`);
+    }
     setOpen(false);
     
     // Reset form
@@ -120,7 +160,8 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
       email: "",
       objet: "",
       description: "",
-      pieceJointe: ""
+      pieceJointe: "",
+      requeteId: requestId
     });
   };
 
@@ -133,7 +174,15 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <Mail className="mr-2 h-5 w-5" />
-            Gestion des Courriers - Requête {requestId}
+            Gestion des Courriers
+            {requestId && (
+              <>
+                {" - "}
+                <Badge variant="outline" className="ml-2">
+                  Requête {requestId}
+                </Badge>
+              </>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -150,6 +199,41 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
           </TabsList>
 
           <TabsContent value="link" className="space-y-4">
+            {/* Section de liaison avec une requête */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Link2 className="mr-2 h-5 w-5" />
+                  Liaison avec une requête
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="requestLink">Sélectionner une requête</Label>
+                  <Select value={selectedRequest} onValueChange={setSelectedRequest}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir une requête à lier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Aucune liaison</SelectItem>
+                      {existingRequests.map((request) => (
+                        <SelectItem key={request.id} value={request.id}>
+                          {request.id} - {request.citizen} - {request.subject}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedRequest && (
+                    <div className="mt-2 p-2 bg-blue-50 rounded border">
+                      <p className="text-sm text-blue-700">
+                        Requête sélectionnée: <strong>{selectedRequest}</strong>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="border rounded-lg p-4">
               <h4 className="font-medium mb-3">Courriers disponibles</h4>
               <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -173,6 +257,12 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
                           >
                             {courier.statut}
                           </Badge>
+                          {courier.requeteId && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700">
+                              <Link2 className="h-3 w-3 mr-1" />
+                              {courier.requeteId}
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-sm font-medium text-gray-900">{courier.objet}</p>
                         <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
@@ -203,6 +293,44 @@ export const CourierDialog = ({ requestId, citizenName, children }: CourierDialo
           </TabsContent>
 
           <TabsContent value="create" className="space-y-6">
+            {/* Section Liaison avec requête */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Link2 className="mr-2 h-5 w-5" />
+                  Liaison avec une requête
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="newRequestLink">Lier à une requête (optionnel)</Label>
+                  <Select 
+                    value={newCourierData.requeteId} 
+                    onValueChange={(value) => setNewCourierData({...newCourierData, requeteId: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir une requête à lier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Aucune liaison</SelectItem>
+                      {existingRequests.map((request) => (
+                        <SelectItem key={request.id} value={request.id}>
+                          {request.id} - {request.citizen} - {request.subject}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {newCourierData.requeteId && (
+                    <div className="mt-2 p-2 bg-blue-50 rounded border">
+                      <p className="text-sm text-blue-700">
+                        Le courrier sera lié à la requête: <strong>{newCourierData.requeteId}</strong>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Section Courrier */}
             <Card>
               <CardHeader>

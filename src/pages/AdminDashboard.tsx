@@ -106,7 +106,10 @@ const AdminDashboard = () => {
       pieceJointe: "reponse_permis.pdf",
       description: "Réponse officielle concernant la demande de permis de construire...",
       priority: "Moyenne",
-      category: "Urbanisme"
+      category: "Urbanisme",
+      requeteId: "REQ-2024-001250",
+      requeteCitizen: "Mohamed Benaissa",
+      requeteSubject: "Demande de permis de construire"
     },
     {
       id: "COU-2024-002",
@@ -119,7 +122,10 @@ const AdminDashboard = () => {
       pieceJointe: "demande_complement.pdf",
       description: "Demande de compléments pour finaliser le dossier...",
       priority: "Haute",
-      category: "Transport"
+      category: "Transport",
+      requeteId: "REQ-2024-001249",
+      requeteCitizen: "Fatima Zerhouni",
+      requeteSubject: "Problème éclairage public"
     },
     {
       id: "COU-2024-003",
