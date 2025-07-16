@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { toast } from "sonner";
 
 // Import the new components
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { KPICards } from "@/components/admin/KPICards";
 import { RequestsTab } from "@/components/admin/RequestsTab";
 import { WorkflowTab } from "@/components/admin/WorkflowTab";
@@ -144,54 +145,89 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminHeader onGenerateReport={generateReport} />
+    <SidebarProvider>
+      <div className="min-h-screen w-full flex">
+        <AdminSidebar />
+        
+        <SidebarInset className="flex-1">
+          <div className="min-h-screen bg-gray-50">
+            <header className="bg-white border-b shadow-sm">
+              <div className="px-6 py-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-4">
+                    <SidebarTrigger className="text-gray-600" />
+                    <div className="h-6 w-px bg-gray-300" />
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">Dashboard Administrateur ITIL</h1>
+                      <p className="text-sm text-gray-600">Gestion professionnelle des requêtes citoyennes</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                      <Activity className="h-3 w-3 mr-1" />
+                      Système Opérationnel
+                    </Badge>
+                    <Button variant="outline" size="sm">
+                      <Bell className="h-4 w-4 mr-2" />
+                      Alertes (3)
+                    </Button>
+                    <Button onClick={onGenerateReport} className="bg-blue-600 hover:bg-blue-700">
+                      <Download className="h-4 w-4 mr-2" />
+                      Rapport ITIL
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </header>
 
-      <div className="p-6">
-        <KPICards stats={stats} />
+            <div className="p-6">
+              <KPICards stats={stats} />
 
-        <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-white">
-            <TabsTrigger value="requests">Gestion Requêtes</TabsTrigger>
-            <TabsTrigger value="workflow">Workflow ITIL</TabsTrigger>
-            <TabsTrigger value="administrations">Administrations</TabsTrigger>
-            <TabsTrigger value="appointments">Audiences</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics IA</TabsTrigger>
-            <TabsTrigger value="reports">Rapports</TabsTrigger>
-          </TabsList>
+              <Tabs defaultValue="requests" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-6 bg-white">
+                  <TabsTrigger value="requests">Gestion Requêtes</TabsTrigger>
+                  <TabsTrigger value="workflow">Workflow ITIL</TabsTrigger>
+                  <TabsTrigger value="administrations">Administrations</TabsTrigger>
+                  <TabsTrigger value="appointments">Audiences</TabsTrigger>
+                  <TabsTrigger value="analytics">Analytics IA</TabsTrigger>
+                  <TabsTrigger value="reports">Rapports</TabsTrigger>
+                </TabsList>
 
-          <TabsContent value="requests">
-            <RequestsTab 
-              requests={requests}
-              searchTerm={searchTerm}
-              filterStatus={filterStatus}
-              onSearchChange={setSearchTerm}
-              onFilterChange={setFilterStatus}
-            />
-          </TabsContent>
+                <TabsContent value="requests">
+                  <RequestsTab 
+                    requests={requests}
+                    searchTerm={searchTerm}
+                    filterStatus={filterStatus}
+                    onSearchChange={setSearchTerm}
+                    onFilterChange={setFilterStatus}
+                  />
+                </TabsContent>
 
-          <TabsContent value="workflow">
-            <WorkflowTab />
-          </TabsContent>
+                <TabsContent value="workflow">
+                  <WorkflowTab />
+                </TabsContent>
 
-          <TabsContent value="administrations">
-            <AdministrationsTab administrations={administrations} />
-          </TabsContent>
+                <TabsContent value="administrations">
+                  <AdministrationsTab administrations={administrations} />
+                </TabsContent>
 
-          <TabsContent value="appointments">
-            <AppointmentsTab appointments={appointments} />
-          </TabsContent>
+                <TabsContent value="appointments">
+                  <AppointmentsTab appointments={appointments} />
+                </TabsContent>
 
-          <TabsContent value="analytics">
-            <AnalyticsTab />
-          </TabsContent>
+                <TabsContent value="analytics">
+                  <AnalyticsTab />
+                </TabsContent>
 
-          <TabsContent value="reports">
-            <ReportsTab />
-          </TabsContent>
-        </Tabs>
+                <TabsContent value="reports">
+                  <ReportsTab />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
