@@ -21,9 +21,16 @@ interface Courier {
   objet: string;
   type: string;
   destinataire: string;
+  expediteur: string;
   date: string;
   statut: string;
   pieceJointe?: string;
+  description: string;
+  priority: string;
+  category: string;
+  requeteId?: string;
+  requeteCitizen?: string;
+  requeteSubject?: string;
 }
 
 interface RequestCourierManagerProps {
@@ -38,9 +45,13 @@ export const RequestCourierManager = ({ requestId, citizenName }: RequestCourier
       objet: "Réponse permis de construire",
       type: "Sortant",
       destinataire: "Mohamed Benaissa",
+      expediteur: "Service Urbanisme",
       date: "2024-01-15",
       statut: "Envoyé",
-      pieceJointe: "reponse_permis.pdf"
+      pieceJointe: "reponse_permis.pdf",
+      description: "Réponse officielle concernant la demande de permis de construire",
+      priority: "Moyenne",
+      category: "Urbanisme"
     }
   ]);
   
@@ -160,7 +171,7 @@ export const RequestCourierManager = ({ requestId, citizenName }: RequestCourier
                       </div>
                     </div>
                   </div>
-                  <CourierActionsMenu courierId={courier.id} />
+                  <CourierActionsMenu courier={courier} />
                 </div>
               </CardHeader>
             </Card>
