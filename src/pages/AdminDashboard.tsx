@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Activity, Bell, Download } from "lucide-react";
 import { toast } from "sonner";
 
 // Import the new components
@@ -171,7 +174,7 @@ const AdminDashboard = () => {
                       <Bell className="h-4 w-4 mr-2" />
                       Alertes (3)
                     </Button>
-                    <Button onClick={onGenerateReport} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={generateReport} className="bg-blue-600 hover:bg-blue-700">
                       <Download className="h-4 w-4 mr-2" />
                       Rapport ITIL
                     </Button>
