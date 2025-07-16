@@ -1,10 +1,12 @@
 
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Mail, LayoutGrid, Table as TableIcon } from "lucide-react";
 import { CourierFilters } from "./CourierFilters";
 import { CourierCard } from "./CourierCard";
 import { CourierBulkActions } from "./CourierBulkActions";
+import { CourierTableView } from "./CourierTableView";
 
 interface Courier {
   id: string;
@@ -36,6 +38,7 @@ export const CourriersTab = ({
   onFilterChange 
 }: CourriersTabProps) => {
   const [selectedCourriers, setSelectedCourriers] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   const handleNewCourrier = (newCourrier: any) => {
     console.log("New courrier created:", newCourrier);
@@ -74,13 +77,35 @@ export const CourriersTab = ({
               Workflow ITIL avec classification IA et SLA tracking
             </CardDescription>
           </div>
-          <CourierFilters 
-            searchTerm={searchTerm}
-            filterStatus={filterStatus}
-            onSearchChange={onSearchChange}
-            onFilterChange={onFilterChange}
-            onCourrierCreated={handleNewCourrier}
-          />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === 'cards' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('cards')}
+                className="flex items-center gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Cartes
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('table')}
+                className="flex items-center gap-2"
+              >
+                <TableIcon className="h-4 w-4" />
+                Tableau
+              </Button>
+            </div>
+            <CourierFilters 
+              searchTerm={searchTerm}
+              filterStatus={filterStatus}
+              onSearchChange={onSearchChange}
+              onFilterChange={onFilterChange}
+              onCourrierCreated={handleNewCourrier}
+            />
+          </div>
         </div>
       </CardHeader>
       
@@ -93,16 +118,27 @@ export const CourriersTab = ({
       />
       
       <CardContent>
-        <div className="space-y-4">
-          {courriers.map((courrier) => (
-            <CourierCard 
-              key={courrier.id} 
-              courrier={courrier}
-              isSelected={selectedCourriers.has(courrier.id)}
-              onSelect={(selected) => handleSelectCourrier(courrier.id, selected)}
-            />
-          ))}
-        </div>
+        {viewMode === 'cards' ? (
+          <div className="space-y-4">
+            {courriers.map((courrier) => (
+              <CourierCard 
+                key={courrier.id} 
+                courrier={courrier}
+                isSelected={selectedCourriers.has(courrier.id)}
+                onSelect={(selected) => handleSelectCourrier(courrier.id, selected)}
+              />
+            ))}
+          </div>
+        ) : (
+          <CourierTableView
+            courriers={courriers}
+            selectedCourriers={selectedCourriers}
+            onSelectCourrier={handleSelectCourrier}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            allSelected={allSelected}
+          />
+        )}
       </CardContent>
     </Card>
   );
