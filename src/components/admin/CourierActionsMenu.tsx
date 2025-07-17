@@ -20,11 +20,14 @@ import {
   Mail,
   UserPlus,
   Bell,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AssignUserDialog } from "./AssignUserDialog";
 import { CourierDetailsDialog } from "./CourierDetailsDialog";
 import { CourierNotificationsDialog } from "./CourierNotificationsDialog";
+import { CourierCommunicationDialog } from "./CourierCommunicationDialog";
+import { CourierEditDialog } from "./CourierEditDialog";
 
 interface Courier {
   id: string;
@@ -48,10 +51,6 @@ interface CourierActionsMenuProps {
 }
 
 export const CourierActionsMenu = ({ courier }: CourierActionsMenuProps) => {
-  const handleEdit = () => {
-    toast.info(`Modification du courrier ${courier.id}`);
-  };
-
   const handleSend = () => {
     toast.success(`Courrier ${courier.id} envoyé`);
   };
@@ -76,6 +75,10 @@ export const CourierActionsMenu = ({ courier }: CourierActionsMenuProps) => {
     toast.success(`Courrier ${courier.id} assigné à ${userName}`);
   };
 
+  const handleUpdate = (updatedCourier: Courier) => {
+    toast.success(`Courrier ${courier.id} mis à jour`);
+  };
+
   return (
     <div className="flex items-center gap-1">
       {/* Boutons d'action principaux */}
@@ -88,6 +91,10 @@ export const CourierActionsMenu = ({ courier }: CourierActionsMenuProps) => {
       
       <CourierNotificationsDialog courierId={courier.id} />
 
+      <CourierCommunicationDialog courierId={courier.id} />
+
+      <CourierEditDialog courier={courier} onUpdate={handleUpdate} />
+
       {/* Menu déroulant pour les autres actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -99,10 +106,6 @@ export const CourierActionsMenu = ({ courier }: CourierActionsMenuProps) => {
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            <span>Modifier</span>
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSend}>
             <Send className="mr-2 h-4 w-4" />
             <span>Envoyer</span>
